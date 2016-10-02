@@ -1,0 +1,53 @@
+{% load staticfiles %}
+<head>
+	<link href="{% static 'bootstrap.min.css' %}" rel="stylesheet">	
+	<script src="{% static 'jquery-3.1.1.js' %}"></script>
+	<script src="{% static 'bootstrap.min.js' %}"></script>
+</head>
+
+<h1>Hello World!</h1>
+
+<input id="ip-input" oninput="onInput()" type="text" list="ip-addresses" placeholder="Type in an ip address...">
+<datalist id="ip-addresses">
+	{% for entry in unique_ips %}
+	  <option value="{{entry.ip_address}}">
+	{% endfor %}	
+</datalist>
+
+<script>
+	// A workaround to validate oninput since there is no current built-in API to do so 
+	function onInput() {
+	    var val = document.getElementById("ip-input").value;
+	    var opts = document.getElementById("ip-addresses").childNodes;
+	    for (var i = 0; i < opts.length; i++) {
+	      if (opts[i].value === val) {
+	        // An item was selected from the list!
+	        // yourCallbackHere()
+	        // alert(opts[i].value);
+	        getData(opts[i].value);
+	        break;
+	      }
+	    }
+	}
+
+	function getData(ip_address) {
+		$.ajax({
+			// Current url
+			url: "{{ request.path }}",
+			type: "GET",
+			data: {"current_ip_address": ip_address},
+			success: function(json) {
+				console.log(json);
+				drawGraph();
+			},
+			error: function(xhr, textStatus, errorThrown) {
+				console.log(errorThrown);
+			}
+		});
+	}
+
+	function drawGraph() {
+		return;
+	}
+</script>
+
