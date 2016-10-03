@@ -1,34 +1,58 @@
 {% load staticfiles %}
 <head>
-	<link href="{% static 'bootstrap.min.css' %}" rel="stylesheet">	
-	<script src="{% static 'jquery-3.1.1.js' %}"></script>
-	<script src="{% static 'bootstrap.min.js' %}"></script>
+	<script src="{% static 'jquery/jquery-3.1.1.js' %}"></script>
+	<link href="{% static 'bootstrap/bootstrap.min.css' %}" rel="stylesheet">	
+	<script src="{% static 'bootstrap/bootstrap.min.js' %}"></script>
+	<link href="{% static 'awesomplete/awesomplete.css' %}" rel="stylesheet"></script>
+	<script src="{% static 'awesomplete/awesomplete.js' %}"></script>
 </head>
 
-<h1>Hello World!</h1>
 
-<input id="ip-input" oninput="onInput()" type="text" list="ip-addresses" placeholder="Type in an ip address...">
+<div class="container" align="center" style="margin-bottom: 50px;">
+	<h1>IP Charts</h1>
+	<h3><i>By: Smati Tungkitkancharoen</i></h3>
+	<hr>
+	<input id="ip-input" class="form-control es-input input-lg" type="text" list="ip-addresses" placeholder="Start typing in an ip address!" text style="text-align:center; width: 300px;">
+</div>
+
 <datalist id="ip-addresses">
 	{% for entry in unique_ips %}
 	  <option value="{{entry.ip_address}}">
 	{% endfor %}	
 </datalist>
 
+<div class="container" align="center" style="width: 700px">
+	<table id="table" class="table table-bordered table-hover">
+		<thead>
+			<tr>
+				<th style="text-align: center;">Datetime</th>
+				<th style="text-align: center;">Frequency</th>
+		  	</tr>
+		</thead>
+		<tbody id="result"></tbody>
+	</table>
+</div>
+
+
+<!-- Javascript -->
 <script>
 	// A workaround to validate oninput since there is no current built-in API to do so 
-	function onInput() {
+	window.addEventListener("awesomplete-selectcomplete", function(e) {
 	    var val = document.getElementById("ip-input").value;
 	    var opts = document.getElementById("ip-addresses").childNodes;
 	    for (var i = 0; i < opts.length; i++) {
 	      if (opts[i].value === val) {
 	        // An item was selected from the list!
-	        // yourCallbackHere()
-	        // alert(opts[i].value);
 	        getData(opts[i].value);
 	        break;
 	      }
 	    }
-	}
+	});
+
+	// Initialize dropdown and changed the minChars from 2 to 1
+	new Awesomplete(document.getElementById("ip-input"), {
+		minChars:1
+	});
 
 	function getData(ip_address) {
 		$.ajax({
@@ -36,9 +60,8 @@
 			url: "{{ request.path }}",
 			type: "GET",
 			data: {"current_ip_address": ip_address},
-			success: function(json) {
-				console.log(json);
-				drawGraph();
+			success: function(json_response) {
+				createTable(json_response);
 			},
 			error: function(xhr, textStatus, errorThrown) {
 				console.log(errorThrown);
@@ -46,8 +69,21 @@
 		});
 	}
 
-	function drawGraph() {
-		return;
+	function createTable(json_response) {
+		array = json_response["data"];
+		result = "<tbody id='result'><tr>";
+		array.forEach(function(pair){
+			result += "<tr>";
+			pair.forEach(function(value) {
+				result += "<td style='text-align: center;'>" + value + "</td>";		
+			});
+			result += "</tr>";
+		});
+		result += "</tr></tbody>"
+
+		// Clears current result 
+		$('#result').remove();
+
+		$('#table').append(result);
 	}
 </script>
-
