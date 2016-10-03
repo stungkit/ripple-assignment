@@ -3,3 +3,4 @@ ripple/db.sqlite3
 venv
 staticfiles
 .env
+db.sqlite3
