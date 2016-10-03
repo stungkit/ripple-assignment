@@ -1,5 +1,3 @@
-log_injector/
-log_parser/
 *.pyc
 ripple/db.sqlite3
 venv
